@@ -12,7 +12,7 @@ else:
     st.error("Falta la configuración de la API Key en los Secrets de Streamlit.")
     st.stop()
 
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-pro-vision')
 
 st.title("📄 Extractor de Acuerdos de Pago")
 st.markdown("Sube la imagen para generar el texto de regularización automáticamente.")
@@ -56,3 +56,4 @@ if uploaded_file:
                 st.success("¡Listo! Ya puedes copiar el texto.")
             except Exception as e:
                 st.error(f"Error al procesar la imagen: {e}")
+
