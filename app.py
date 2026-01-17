@@ -1,37 +1,38 @@
 import streamlit as st
 import google.generativeai as genai
 from PIL import Image
-import os
 
-st.set_page_config(page_title="Analizador de Deudas", page_icon="💰")
+# Configuración de la página
+st.set_page_config(page_title="Extractor de Deudas", layout="centered")
 
-# Configuración de la API Key
+# Conexión con la llave de seguridad
 if "GOOGLE_API_KEY" in st.secrets:
-    # FORZAMOS LA VERSIÓN ESTABLE PARA EVITAR EL ERROR 404
-    os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 else:
-    st.error("Configura la clave en los Secrets de Streamlit.")
+    st.error("⚠️ Falta la API Key en los Secrets.")
     st.stop()
 
-# Usamos el nombre del modelo estándar
+# Usamos el modelo más estable
 model = genai.GenerativeModel('gemini-1.5-flash')
 
-st.title("📄 Extractor de Acuerdos de Pago")
+st.title("💰 Extractor de Acuerdos de Pago")
 
-uploaded_file = st.file_uploader("Selecciona la imagen de la deuda", type=["png", "jpg", "jpeg"])
+archivo = st.file_uploader("Sube la imagen de la deuda", type=["png", "jpg", "jpeg"])
 
-if uploaded_file:
-    img = Image.open(uploaded_file)
-    st.image(img, caption="Imagen cargada", use_container_width=True)
+if archivo:
+    img = Image.open(archivo)
+    st.image(img, caption="Imagen cargada correctamente")
 
     if st.button("Generar Texto"):
-        with st.spinner("Analizando información..."):
-            prompt = "Extrae el Monto total deuda, Dias total deuda y todas las opciones de cuotas de esta imagen. Formatea como un mensaje de liquidación."
+        with st.spinner("Leyendo datos..."):
+            # Instrucción simplificada para asegurar respuesta
+            prompt = "Analiza la imagen y extrae: Monto total deuda, Dias total deuda, y las opciones de cuotas disponibles."
+            
             try:
-                # Forzamos a que no use v1beta
-                response = model.generate_content(img, generation_config={"candidate_count": 1})
-                st.subheader("Resultado:")
-                st.write(response.text)
+                # El cambio clave: quitamos parámetros innecesarios que causan el 404
+                response = model.generate_content([prompt, img])
+                
+                st.success("¡Datos extraídos!")
+                st.text_area("Resultado para copiar:", value=response.text, height=300)
             except Exception as e:
-                st.error(f"Error técnico: {e}. Por favor, verifica tu API Key en Secrets.")
+                st.error(f"Hubo un problema: {e}")
