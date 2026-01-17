@@ -4,7 +4,7 @@ from PIL import Image
 
 st.set_page_config(page_title="Extractor de Deudas", page_icon="💰")
 
-# Configuración de la API Key desde los Secrets
+# Configuración de la API Key
 if "GOOGLE_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 else:
@@ -22,22 +22,15 @@ if archivo:
     if st.button("Generar Texto"):
         with st.spinner("Analizando información..."):
             try:
-                # FORZAMOS EL USO DE LA VERSIÓN v1 PARA EVITAR EL ERROR 404
-                model = genai.GenerativeModel(model_name='gemini-1.5-flash')
+                # CAMBIO CLAVE: Usamos el nombre de modelo de producción
+                model = genai.GenerativeModel('models/gemini-1.5-flash')
                 
-                prompt = """
-                Analiza la tabla de la imagen y extrae exactamente estos datos:
-                1. Monto total deuda
-                2. Dias total deuda
-                3. La lista de cuotas (Nro cuotas y Monto de la cuota)
+                prompt = "Lee la tabla y dime el Monto total deuda, Dias total deuda y las cuotas."
                 
-                Formatea la respuesta como un mensaje de acuerdo de pago profesional.
-                """
-                
-                # Llamada directa sin parámetros de versión que causen conflicto
+                # Intentamos la llamada más básica posible
                 response = model.generate_content([prompt, img])
                 
                 st.success("¡Análisis completado!")
-                st.text_area("Resultado:", value=response.text, height=350)
+                st.write(response.text)
             except Exception as e:
-                st.error(f"Error: {e}. Intenta refrescar la página.")
+                st.error(f"Error técnico: {e}")
