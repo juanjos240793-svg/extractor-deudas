@@ -11,7 +11,6 @@ else:
     st.error("⚠️ Falta la API Key en los Secrets.")
     st.stop()
 
-# Título de la App
 st.title("📄 Extractor de Acuerdos de Pago")
 
 archivo = st.file_uploader("Sube la imagen de la deuda", type=["png", "jpg", "jpeg"])
@@ -21,17 +20,24 @@ if archivo:
     st.image(img, caption="Imagen cargada correctamente")
 
     if st.button("Generar Texto"):
-        with st.spinner("Analizando información con IA..."):
+        with st.spinner("Analizando información..."):
             try:
-                # Usamos el modelo más estable y rápido
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                # FORZAMOS EL USO DE LA VERSIÓN v1 PARA EVITAR EL ERROR 404
+                model = genai.GenerativeModel(model_name='gemini-1.5-flash')
                 
-                # Pedimos los datos específicos de tu tabla
-                prompt = "Extrae de la imagen: Monto total deuda, Dias total deuda y los montos de las cuotas."
+                prompt = """
+                Analiza la tabla de la imagen y extrae exactamente estos datos:
+                1. Monto total deuda
+                2. Dias total deuda
+                3. La lista de cuotas (Nro cuotas y Monto de la cuota)
                 
+                Formatea la respuesta como un mensaje de acuerdo de pago profesional.
+                """
+                
+                # Llamada directa sin parámetros de versión que causen conflicto
                 response = model.generate_content([prompt, img])
                 
                 st.success("¡Análisis completado!")
-                st.text_area("Copia el resultado:", value=response.text, height=300)
+                st.text_area("Resultado:", value=response.text, height=350)
             except Exception as e:
-                st.error(f"Error técnico: {e}")
+                st.error(f"Error: {e}. Intenta refrescar la página.")
