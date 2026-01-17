@@ -23,7 +23,7 @@ if archivo:
         with st.spinner("Analizando información..."):
             try:
                 # CAMBIO CLAVE: Usamos el nombre de modelo de producción
-                model = genai.GenerativeModel('models/gemini-1.5-flash')
+                model = genai.GenerativeModel(model_name='models/gemini-1.5-flash')
                 
                 prompt = "Lee la tabla y dime el Monto total deuda, Dias total deuda y las cuotas."
                 
@@ -34,3 +34,4 @@ if archivo:
                 st.write(response.text)
             except Exception as e:
                 st.error(f"Error técnico: {e}")
+
